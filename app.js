@@ -30,6 +30,13 @@ const item2 = new Item({ name: 'Hit the + button to add a new item.' });
 const item3 = new Item({ name: '<-- Hit this to delete an item.' });
 const defaultItems = [item1, item2, item3];
 
+const listSchema = new mongoose.Schema ({
+  name: String,
+  items: [itemsSchema]
+});
+
+const List = mongoose.model('List', listSchema);
+
 
 app.get('/', function(req, res) {
   let day = date.getDate();
@@ -59,10 +66,6 @@ app.get('/', function(req, res) {
 app.post('/', function(req, res) {
   let postItem = req.body.newItem;
 
-  if (req.body.list === 'Work') {
-    workItems.push(item);
-    res.redirect('/work');
-  } else {
     const newItem = new Item({
       name: postItem
     });
@@ -75,7 +78,6 @@ app.post('/', function(req, res) {
       }
     });
     res.redirect('/');
-  }
 });
 
 app.post('/delete', (req, res) => {
@@ -90,12 +92,28 @@ app.post('/delete', (req, res) => {
   res.redirect('/');
 });
 
-app.get('/work', function(req, res) {
-  res.render('list', {
-    listTitle: 'Work',
-    newListItem: workItems,
-    itemsList: workItems
+app.get('/:listName', (req, res) => {
+  const listTitle = req.params.listName;
+
+  List.findOne({name: listTitle}, (err, foundList) => {
+    if (err) {
+      console.log(err);
+    } else if (foundList) {
+
+      res.render('list', { listTitle: listTitle, itemsList: foundList.items });
+      
+    } else {
+
+      const list = new List ({
+        name: listTitle,
+        items: defaultItems
+      });
+    
+      list.save();
+      res.redirect(`/${listTitle}`);
+    }
   });
+  
 });
 
 app.listen(3000, function() {
