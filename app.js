@@ -80,11 +80,11 @@ app.post('/', function(req, res) {
 
 app.post('/delete', (req, res) => {
   const itemToDelete = req.body.checkbox;
-  Item.deleteOne({_id: itemToDelete}, err =>{
+  Item.findByIdAndRemove(itemToDelete, err =>{
     if (err) {
       console.log(err);
     } else {
-      console.log('The item has been deleted from db.');
+      console.log('The checked item has been deleted from db.');
     }
   });
   res.redirect('/');
