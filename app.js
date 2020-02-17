@@ -78,6 +78,18 @@ app.post('/', function(req, res) {
   }
 });
 
+app.post('/delete', (req, res) => {
+  const itemToDelete = req.body.checkbox;
+  Item.deleteOne({_id: itemToDelete}, err =>{
+    if (err) {
+      console.log(err);
+    } else {
+      console.log('The item has been deleted from db.');
+    }
+  });
+  res.redirect('/');
+});
+
 app.get('/work', function(req, res) {
   res.render('list', {
     listTitle: 'Work',
