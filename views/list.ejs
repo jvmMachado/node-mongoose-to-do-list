@@ -16,7 +16,7 @@
       <% itemsList.forEach(element => { %>
       <div class="item">
         <input type="checkbox" />
-        <p><%= newListItem[itemsList.indexOf(element)] %></p>
+        <p><%= element.name %></p>
       </div>
       <% }); %>
       <form class="item" action="/" method="post">

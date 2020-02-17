@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const date = require(__dirname + '/date.js');
 
 const app = express();
+// const items = ['Item1', 'Item2', 'Item3'];
 // const workItems = [];
 
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -29,27 +30,50 @@ const item2 = new Item({ name: 'Hit the + button to add a new item.' });
 const item3 = new Item({ name: '<-- Hit this to delete an item.' });
 const defaultItems = [item1, item2, item3];
 
-Item.insertMany(defaultItems, err => {
-  if (err) {
-    console.log(err);
-  } else {
-    console.log('Default items have been added to the list.');
-  }
-});
 
 app.get('/', function(req, res) {
   let day = date.getDate();
-  res.render('list', { listTitle: day, newListItem: items, itemsList: items });
-});
+
+  Item.find({}, (err, foundItems) => {
+
+    if (err) {
+      console.log(err);
+      
+    } else if (foundItems.length === 0) {
+
+      Item.insertMany(defaultItems, err => {
+
+        if (err) {
+          console.log(err);
+        } else {
+          console.log('Default items have been added to the list.');
+        }
+      });
+        res.redirect('/');
+    } else {
+      res.render('list', { listTitle: day, itemsList: foundItems });
+      }
+    });
+  });
 
 app.post('/', function(req, res) {
-  let item = req.body.newItem;
+  let postItem = req.body.newItem;
 
   if (req.body.list === 'Work') {
     workItems.push(item);
     res.redirect('/work');
   } else {
-    items.push(item);
+    const newItem = new Item({
+      name: postItem
+    });
+
+    newItem.save(err =>{
+      if (err) {
+        console.log(err);
+      } else {
+        console.log('A new item has been added to the list.');
+      }
+    });
     res.redirect('/');
   }
 });
