@@ -11,6 +11,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static('public'));
 app.set('view engine', 'ejs');
 
+mongoose.set('useFindAndModify', false);
 mongoose.connect('mongodb://localhost:27017/todolistDB', {
   useNewUrlParser: true,
   useUnifiedTopology: true
@@ -93,15 +94,34 @@ app.post('/', function(req, res) {
 });
 
 app.post('/delete', (req, res) => {
-  const itemToDelete = req.body.checkbox;
-  Item.findByIdAndRemove(itemToDelete, err => {
-    if (err) {
-      console.log(err);
-    } else {
-      console.log('The checked item has been deleted from db.');
-    }
-  });
-  res.redirect('/');
+  const checkedItemId = req.body.checkbox;
+  const listName = req.body.listName;
+
+  if (List.findOne({name: listName})) {
+    console.log(`list.findone: ${List.findOne({name: listName})}`);
+    List.findOneAndUpdate(
+      {name: listName},
+      {$pull: {items: {_id: checkedItemId} } }, (err, foundList) => {
+        if (err) {
+          console.log(err);
+        } else {
+          console.log(`The checked item has been deleted from ${listName} list.`)
+          res.redirect(`/${listName}`);
+        }
+      }
+    );
+
+  } else {
+    Item.findByIdAndRemove(checkedItemId, err => {
+      if (err) {
+        console.log(err);
+      } else {
+        console.log('The checked item has been deleted from db.');
+      }
+    });
+    res.redirect('/');
+  }
+
 });
 
 app.get('/:listName', (req, res) => {
