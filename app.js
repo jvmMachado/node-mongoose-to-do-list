@@ -13,7 +13,7 @@ app.use(express.static('public'));
 app.set('view engine', 'ejs');
 
 mongoose.set('useFindAndModify', false);
-mongoose.connect('mongodb://localhost:27017/todolistDB', {
+mongoose.connect('mongodb+srv://admin-jvmmachado:omniclusterjvmmachado@omnicluster-e8dsw.mongodb.net/todolistDB', {
   useNewUrlParser: true,
   useUnifiedTopology: true
 });
@@ -53,9 +53,10 @@ app.get('/', function(req, res) {
           console.log('Default items have been added to the list.');
         }
       });
-      res.redirect('/');
+      res.redirect(`/${day}`);
     } else {
-      res.render('list', { listTitle: day, itemsList: foundItems });
+      res.redirect(`/${day}`);
+      // res.render('list', { listTitle: day, itemsList: foundItems });
     }
   });
 });
